@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools >= 70.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name='logmaster-server'
+version = '0.1'
+description = "Log-Master backend."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    'requests>=2.32.3',
+    'starlette>=0.37.2',
+    'pydantic>=2.5.2',
+    'click>=8.1.7',
+    'fastapi>=0.109.1',
+    'uvicorn[standard]>=0.25.0',
+    'pyjwt>=2.8.0',
+    'bcrypt==4.0.1',  # needed since passlib is broken with newer versions of bcrypt
+    'passlib[bcrypt]>=1.7.4',
+    'confluent-kafka>=2.4.0',
+    'beanie>=1.26.0'
+]
+
+[project.scripts]
+logmaster = "logmaster.server.cli.entrypoints:main"
+
+[tool.setuptools]
+packages = ["logmaster", "logmaster.server", "logmaster.core"]
+
+[tool.setuptools.package-dir]
+logmaster = "../src/logmaster"
+"logmaster.server" = "../src/logmaster/server"
+"logmaster.core" = "../src/logmaster/core"

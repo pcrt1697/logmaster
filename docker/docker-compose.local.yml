@@ -1,0 +1,89 @@
+name: log-master
+services:
+  
+  mongodb:
+    container_name: mongodb
+    image: mongodb/mongodb-community-server:7.0.6-ubi8
+    restart: always
+    hostname: mongodb
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=logmaster
+      - MONGO_INITDB_ROOT_PASSWORD=logmaster
+    ports:
+        - "27017:27017"
+    volumes:
+      - ~/.log-master/mongodb/data:/data/db
+      - ./mongo:/docker-entrypoint-initdb.d/:ro
+  
+  zookeeper:
+    container_name: zookeeper
+    image: confluentinc/cp-zookeeper:7.6.1
+    restart: always
+    hostname: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 2181:2181
+    volumes:
+      - ~/.log-master/zookeeper/data:/var/lib/zookeeper/data
+      - ~/.log-master/zookeeper/log:/var/lib/zookeeper/log
+    
+  kafka-broker:
+    container_name: kafka-broker
+    image: confluentinc/cp-server:7.6.1
+    restart: always
+    hostname: kafka-broker
+    depends_on:
+      - zookeeper
+    ports:
+      - 9092:9092
+      - 29092:29092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-broker:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+      CONFLUENT_METRICS_ENABLE: 'false'
+    volumes: 
+      - ~/.log-master/kafka-broker:/var/lib/kafka/data
+  
+  kafka-connect-mongodb:
+    container_name: kafka-connect-mongodb
+    restart: always
+    hostname: kafka-connect-mongodb
+    depends_on:
+      - zookeeper
+      - kafka-broker
+      - kafka-schema-registry
+    ports:
+      - "8083:8083"
+    build:
+        context: ./../
+        dockerfile: ./Dockerfile.connect-mongodb
+    environment:
+      CONNECT_REST_ADVERTISED_HOST_NAME: kafka-connect-mongodb
+      CONNECT_BOOTSTRAP_SERVERS: kafka-broker:29092
+      CONNECT_GROUP_ID: connect-mongodb
+      CONNECT_CONFIG_STORAGE_TOPIC: connect-mongodb-configs
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_OFFSET_FLUSH_INTERVAL_MS: 10000
+      CONNECT_OFFSET_STORAGE_TOPIC: connect-mongodb-offsets
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_STATUS_STORAGE_TOPIC: connect-mongodb-status
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_KEY_CONVERTER: org.apache.kafka.connect.storage.StringConverter
+      CONNECT_VALUE_CONVERTER: io.confluent.connect.avro.AvroConverter
+      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      CLASSPATH: /usr/share/java/monitoring-interceptors/monitoring-interceptors-7.5.0.jar
+      CONNECT_PRODUCER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor"
+      CONNECT_CONSUMER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor"
+      CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components"
