@@ -15,8 +15,6 @@ dependencies = [
     'click>=8.1.7',
     'fastapi>=0.109.1',
     'uvicorn[standard]>=0.25.0',
-    'pyjwt>=2.8.0',
-    'bcrypt==4.0.1',  # needed since passlib is broken with newer versions of bcrypt
     'passlib[bcrypt]>=1.7.4',
     'confluent-kafka>=2.4.0',
     'beanie>=1.26.0'

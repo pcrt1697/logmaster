@@ -1,8 +1,6 @@
 import logging
 
-import requests
-
-from logmaster.client.logger import KafkaLoggingHandler
+from logmaster.client.logger import KafkaLogHandler
 from logmaster.core.logging import LogFormatter
 
 BACKEND_ROOT_URL = "http://localhost:5050"
@@ -19,7 +17,7 @@ def test_error(_logger):
 
 def test():
 
-    kafka_handler = KafkaLoggingHandler(id_app=APP_NAME, backend_server=BACKEND_ROOT_URL, app_info={"name": "Demo APP"})
+    kafka_handler = KafkaLogHandler(id_app=APP_NAME, backend_server=BACKEND_ROOT_URL, app_info={"name": "Demo APP"})
 
     _logger = logging.getLogger(__name__)
     _logger.addHandler(kafka_handler)

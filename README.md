@@ -1,18 +1,39 @@
 # logmaster
+A simple application used to store and query log records.
 
-## logmaster-client
-Client package for Python applications. Provides an interface to configure logging and produce the related messages.
-Such messages are written to MongoDB.
+*Main features:*
+* Client-side Python logger for (near) real time ingestion of log records
+* REST APIs to query log data
 
-## logmaster-server
-Backend application that provides a REST interface to query the log messages. It is a middleware used to query for the logs in MongoDB.
-It is also provide endpoints to create applications.
+### Table of contents
+* [Quickstart](#quickstart)
+* [Architecture](#architecture)
+  * [logmaster-server](#logmaster-server)
+  * [logmaster-client](#logmaster-client)
+* [TODO list](#todo-list)
 
-## Local run
+## Quickstart
+Run the entire application stack locally, from the project root:
 ```bash
 docker-compose -f ./docker/docker-compose.local.yml up --force-recreate -d
 ```
 
-## TODO
-- Add backend container to compose file
+## Architecture
+![](docs/logmaster-arch.png)
+* Client applications use `logmaste-client` package utilities to send messages to Kafka Broker;
+* Logged messages are written to MongoDB with Kafka Connect;
+* Users can query log records by interacting with REST APIs exposed by `logmaste-server`. 
+
+### logmaster-core
+The main package that contains shared utilities used by both, client and server packages. 
+
+### logmaster-client
+Provides an utility to configure the logger for a Python application and produce the related messages. Such messages are sent to Kafka and written to MongoDB using the MongoDB Sink connector. More info [here](logmaster-client/README.md).
+
+### logmaster-server
+A REST interface (FastAPI) to query log messages from MongoDB (Beanie). It also provides endpoints to manage Client Applications. More info [here](logmaster-server/README.md).
+
+## TODO list
+- Add authentication
+- Add backend container to docker-compose file
 - Create a notifier framework

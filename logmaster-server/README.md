@@ -1,5 +1,10 @@
 # log-master server
 
+Main features:
+* Endpoints to query log records;
+* Endpoints to manage client applications;
+* CLI to configure the Sink Connector.
+
 ## Set-Up local run
 ```bash
 export LOGMASTER_KAFKA_CONNECT_URL="http:\\localhost\8083"
@@ -19,9 +24,16 @@ pip install setuptools
 pip install -e .
 ```
 
+## Initialization
+To create the MongoDB Sink connector:
+```bash
+logmaster init
+```
+
 ## Run
+To start the FastAPI application:
 ```bash
 logmaster run
 ```
 
-Check out the swagger documentation at http://127.0.0.1:5050/api/v1/docs.
+Check out the swagger documentation at http://localhost:5050/api/v1/docs.

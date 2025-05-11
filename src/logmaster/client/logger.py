@@ -11,11 +11,11 @@ from logmaster.core.util import Singleton
 _logger = logging.getLogger(__name__)
 
 
-class KafkaLoggingHandler(Handler, metaclass=Singleton):
+class KafkaLogHandler(Handler, metaclass=Singleton):
 
     def __init__(self, id_app: str, backend_server: str, bootstrap_servers: str = None, app_info: dict[str, str] = None):
         super().__init__()
-        _logger.info("Configuring KafkaLoggingHandler...")
+        _logger.info("Configuring KafkaLogHandler...")
         self._producer = LogMessageProducerClient(bootstrap_servers)
         self._id_app = id_app
         self._backend_server = backend_server
@@ -32,7 +32,7 @@ class KafkaLoggingHandler(Handler, metaclass=Singleton):
             urljoin(self._backend_server, f"api/v1/apps/{self._id_app}")
         )
         if response.ok:
-            _logger.info("KafkaLoggingHandler configured to talk with app: %s", response.json())
+            _logger.info("KafkaLogHandler configured to talk with app: %s", response.json())
             return
         _logger.error("Unable to get app %s, the server response is: %s", self._id_app, response.json())
         response.raise_for_status()
@@ -43,7 +43,7 @@ class KafkaLoggingHandler(Handler, metaclass=Singleton):
             json=app_info
         )
         if response.ok:
-            _logger.info("KafkaLoggingHandler configured to talk with app: %s", response.json())
+            _logger.info("KafkaLogHandler configured to talk with app: %s", response.json())
             return
         _logger.error("Unable to upsert app %s, the server response is: %s", self._id_app, response.json())
         response.raise_for_status()
