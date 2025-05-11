@@ -9,7 +9,7 @@ Main features:
 ```bash
 export LOGMASTER_KAFKA_CONNECT_URL="http:\\localhost\8083"
 export LOGMASTER_KAFKA_BROKER_URL="http:\\localhost\29092"
-export LOGMASTER_BACKEND_PORT=5000  # port used to expose rest APIs
+export LOGMASTER_BACKEND_PORT=5050  # port used to expose rest APIs
 export LOGMASTER_MONGO_URL="mongodb://logmaster:logmaster@localhost:27017/"
 ```
 
