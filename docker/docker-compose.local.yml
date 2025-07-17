@@ -13,7 +13,7 @@ services:
         - "27017:27017"
     volumes:
       - ~/.log-master/mongodb/data:/data/db
-      - ./mongo:/docker-entrypoint-initdb.d/:ro
+      - ./mongo:/docker-entrypoint-initdb.d
   
   zookeeper:
     container_name: zookeeper
@@ -63,7 +63,6 @@ services:
     depends_on:
       - zookeeper
       - kafka-broker
-      - kafka-schema-registry
     ports:
       - "8083:8083"
     build:
@@ -82,7 +81,6 @@ services:
       CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
       CONNECT_KEY_CONVERTER: org.apache.kafka.connect.storage.StringConverter
       CONNECT_VALUE_CONVERTER: io.confluent.connect.avro.AvroConverter
-      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
       CLASSPATH: /usr/share/java/monitoring-interceptors/monitoring-interceptors-7.5.0.jar
       CONNECT_PRODUCER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor"
       CONNECT_CONSUMER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor"
